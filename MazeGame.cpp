@@ -9,9 +9,30 @@ using namespace std;
 2: 시작점
 3: 도착점
 */
-void SetMaze(char Maze[21][21])
+
+struct _tagPoint 
+{
+	int x;
+	int y;
+
+};
+
+typedef _tagPoint POINT; //타입을 재정의
+typedef _tagPoint* PPOINT;
+
+void SetMaze(char Maze[21][21], PPOINT pPlayerPos, PPOINT pStartPos, 
+	PPOINT tEndPos)
 {
 	 
+	pStartPos->x = 0;
+	pStartPos->y = 0;
+
+	pEndPos->x = 19;
+	pEndPos->y = 19;
+
+	pPlayerPos->x = 0;//플레이어 위치랑 시작 위치랑같음
+	pPlayerPos->y = 0;
+
 	strcpy_s(Maze[0],  "21100000000000000000");
 	strcpy_s(Maze[1],  "00111111111100000000");
 	strcpy_s(Maze[2],  "00100010000111111100");
@@ -35,13 +56,16 @@ void SetMaze(char Maze[21][21])
 
 }
 
-void Output(char Maze[21][21])
+void Output(char Maze[21][21], PPOINT pPlayerPos)
 {
 	for (int i = 0; i < 20; ++i)
 	{
 		for (int j = 0; j < 20; ++j)
 		{
-			if (Maze[i][j] == '0')
+			if(pPlayerPos->x == j && pPlayerPos->y ==i)
+				cout << "☆"
+
+			else if (Maze[i][j] == '0')
 				cout << "■";
 
 			else if (Maze[i][j] == '1')
@@ -57,24 +81,110 @@ void Output(char Maze[21][21])
 	}
 }
 
+void MoveUp(char Maze[21][21], PPOINT pPlayerPos)//y값을 조정해야함
+{
+	if (pPlayerPos->y - 1 >= 0)
+	{
+		//벽인지 체크한다
+		if (Maze[pPlayerPos->y - 1][pPlayerPos->x] != '0')
+		{
+			--pPlayerPos->y;
+		}
+	}
+}
+
+void MoveDown(char Maze[21][21], PPOINT pPlayerPos)//y값을 조정해야함
+{
+	if (pPlayerPos->y + 1 < 20)//19까지만 가야하니까
+	{
+		//벽인지 체크한다
+		if (Maze[pPlayerPos->y + 1][pPlayerPos->x] != '0')
+		{
+			++pPlayerPos->y;
+		}
+	}
+}
+
+void MoveRight(char Maze[21][21], PPOINT pPlayerPos)//y값을 조정해야함
+{
+	if (pPlayerPos->x + 1 <20)
+	{
+		//벽인지 체크한다
+		if (Maze[pPlayerPos->y][pPlayerPos->x +1] != '0')
+		{
+			++pPlayerPos->x;
+		}
+	}
+}
+
+void MoveLeft(char Maze[21][21], PPOINT pPlayerPos)//y값을 조정해야함
+{
+	if (pPlayerPos->x - 1 < 20)
+	{
+		//벽인지 체크한다
+		if (Maze[pPlayerPos->y][pPlayerPos->x - 1] != '0')
+		{
+			--pPlayerPos->x;
+		}
+	}
+}
+
+void MovePlayer(char Maze[21][21], PPOINT pPlayerPos, char cinput)
+{
+	switch (cinput)
+	{
+	case'w':
+	case'W':
+		MoveUp(Maze, pPlayerPos);
+		break;
+	case's':
+	case'S':
+		MoveDown(Maze, pPlayerPos);
+		break;
+	case 'a':
+	case 'A':
+		MoveRight(Maze, pPlayerPos);
+		break;
+	case 'd':
+	case 'D':
+		MoveLeft(Maze, pPlayerPos)
+		break;
+	}
+}
+
+
+
 int main() 
 {
 	//20 *20 미로를 만들어준다
 	char strMaze[21][21] = {};
+
+	POINT tPlayerPos;
+	POINT tStarPos;
+	POINT tEndPos;
+
 	//미로를 설정한다
-	SetMaze(strMaze);
+	SetMaze(strMaze, &tPlayerPos, &tStarPos, &tEndPos);
 
 	while (true)
 	{
 		system("cls");
 		//미로를 출력한다
-		Output(strMaze);
+		Output(strMaze, &tPlayerPos);
+
+		if (tPlayerPos.x == tEndPos.x && tPlayerPos.y == tEndPos.y)
+		{
+			cout << "도착했습니다." << endl;
+			break;
+		}
+
 		cout << "w: 위 s:아래 a:왼쪽 d: 오른쪽 q : 종료 : ";
 		char cinput = _getch();//바로 반응하도록
 		
 		if (cinput == 'q' || cinput == 'Q')
 			break;
-
+		
+		MovePlayer(strMaze, &tPlayerPos, cinput)
 	}
 
 
